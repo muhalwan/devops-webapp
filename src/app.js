@@ -4,6 +4,7 @@ const apiRoutes = require('./routes/api');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const dbURI = process.env.DATABASE_URL;
 
 // Middleware
 app.use(bodyParser.json());
@@ -12,10 +13,12 @@ app.use(bodyParser.json());
 app.use('/api', apiRoutes);
 
 // Connect to Database
-const dbURI = process.env.DATABASE_URL;
 mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
-	.then(() => console.log('Database connected'))
-	.catch(err => console.log(err));
+	.then(() => console.log('Connected to MongoDB'))
+	.catch(err => {
+		console.error('MongoDB connection error:', err);
+		process.exit(1);
+	});
 
 // Start the Server
 const PORT = process.env.PORT || 3000;
