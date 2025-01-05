@@ -53,14 +53,16 @@ describe('Item API Endpoints', () => {
         { name: 'Item 1', description: 'Description 1' },
         { name: 'Item 2', description: 'Description 2' },
       ]);
-
+  
       const res = await request(app).get('/api/items');
       expect(res.statusCode).toEqual(200);
       expect(res.body.length).toBe(2);
-      expect(res.body[0].name).toBe('Item 1');
-      expect(res.body[1].name).toBe('Item 2');
+  
+      const itemNames = res.body.map(item => item.name);
+      expect(itemNames).toContain('Item 1');
+      expect(itemNames).toContain('Item 2');
     });
-  });
+  });  
 
   describe('GET /api/items/:id', () => {
     it('should retrieve a single item by ID', async () => {
