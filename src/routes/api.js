@@ -1,66 +1,70 @@
 const express = require('express');
+const { body, validationResult } = require('express-validator');
+const itemController = require('../controllers/itemController');
+
 const router = express.Router();
-const Item = require('../models/item');
 
-// Create a new item
-router.post('/items', async (req, res) => {
-  try {
-    const newItem = new Item(req.body);
-    const savedItem = await newItem.save();
-    res.status(201).json(savedItem);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-// Get all items
-router.get('/items', async (req, res) => {
-  try {
-    const items = await Item.find();
-    res.json(items);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Get a single item
-router.get('/items/:id', async (req, res) => {
-  try {
-    const item = await Item.findById(req.params.id);
-    if (!item) return res.status(404).json({ message: 'Item not found' });
-    res.json(item);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Update an item
-router.patch('/items/:id', async (req, res) => {
-  try {
-    const item = await Item.findById(req.params.id);
-    if (!item) return res.status(404).json({ message: 'Item not found' });
-
-    if (req.body.name) item.name = req.body.name;
-    if (req.body.description) item.description = req.body.description;
-
-    const updatedItem = await item.save();
-    res.json(updatedItem);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-// Delete an item
-router.delete('/items/:id', async (req, res) => {
-    try {
-      const result = await Item.findByIdAndDelete(req.params.id);
-      if (!result) return res.status(404).json({ message: 'Item not found' });
-  
-      res.json({ message: 'Item deleted successfully' });
-    } catch (err) {
-      res.status(500).json({ message: err.message });
+/**
+ * @route   POST /api/items
+ * @desc    Create a new item
+ * @access  Public
+ */
+router.post(
+  '/items',
+  [
+    body('name').notEmpty().withMessage('Name is required').trim().escape(),
+    body('description').optional().isString().trim().escape(),
+  ],
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-  });
-  
+    next();
+  },
+  itemController.createItem
+);
+
+/**
+ * @route   GET /api/items
+ * @desc    Get all items
+ * @access  Public
+ */
+router.get('/items', itemController.getAllItems);
+
+/**
+ * @route   GET /api/items/:id
+ * @desc    Get a single item by ID
+ * @access  Public
+ */
+router.get('/items/:id', itemController.getItemById);
+
+/**
+ * @route   PATCH /api/items/:id
+ * @desc    Update an item by ID
+ * @access  Public
+ */
+router.patch(
+  '/items/:id',
+  [
+    body('name').optional().notEmpty().withMessage('Name cannot be empty').trim().escape(),
+    body('description').optional().isString().trim().escape(),
+  ],
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+  itemController.updateItem
+);
+
+/**
+ * @route   DELETE /api/items/:id
+ * @desc    Delete an item by ID
+ * @access  Public
+ */
+router.delete('/items/:id', itemController.deleteItem);
 
 module.exports = router;

@@ -1,0 +1,74 @@
+const Item = require('../models/Item');
+
+/**
+ * Create a new item.
+ */
+exports.createItem = async (req, res, next) => {
+  try {
+    const newItem = new Item(req.body);
+    const savedItem = await newItem.save();
+    res.status(201).json(savedItem);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get all items.
+ */
+exports.getAllItems = async (req, res, next) => {
+  try {
+    const items = await Item.find();
+    res.json(items);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get a single item by ID.
+ */
+exports.getItemById = async (req, res, next) => {
+  try {
+    const item = await Item.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+    res.json(item);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Update an item by ID.
+ */
+exports.updateItem = async (req, res, next) => {
+  try {
+    const updatedItem = await Item.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!updatedItem) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+    res.json(updatedItem);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Delete an item by ID.
+ */
+exports.deleteItem = async (req, res, next) => {
+  try {
+    const deletedItem = await Item.findByIdAndDelete(req.params.id);
+    if (!deletedItem) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+    res.json({ message: 'Item deleted successfully' });
+  } catch (err) {
+    next(err);
+  }
+};
