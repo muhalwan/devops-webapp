@@ -41,11 +41,3 @@ A RESTful web application built with Node.js and Express.js, featuring CRUD oper
 
 - **Node.js & npm:** [Install Node.js](https://nodejs.org/)
 - **MongoDB Atlas Account:** [Sign Up for MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register)
-
-### Steps
-
-1. **Clone the Repository**
-
-   ```bash
-   git clone https://github.com/your-username/devops-webapp.git
-   cd devops-webapp
