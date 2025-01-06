@@ -4,18 +4,6 @@
 
 A RESTful web application built with Node.js and Express.js, featuring CRUD operations for managing items. This project serves as a hands-on DevOps portfolio piece, demonstrating best practices in development, version control, testing, and documentation.
 
-## Table of Contents
-
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Installation](#installation)
-- [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [Testing](#testing)
-- [Linting and Formatting](#linting-and-formatting)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## Features
 
 - Create, Read, Update, and Delete (CRUD) operations for items.
