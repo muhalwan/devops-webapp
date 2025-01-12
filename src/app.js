@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -8,10 +7,10 @@ const apiRoutes = require('./routes/api');
 const app = express();
 
 // Middleware
-app.use(helmet());
-app.use(cors());
-app.use(morgan('dev'));
-app.use(bodyParser.json());
+app.use(helmet()); // Enhance security
+app.use(cors()); // Enable CORS
+app.use(morgan('combined')); // HTTP request logging
+app.use(express.json()); // Parse JSON bodies
 
 // Routes
 app.use('/api', apiRoutes);
@@ -23,7 +22,7 @@ app.use((req, res) => {
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('❌ Global Error Handler:', err.stack);
   res.status(500).json({ message: 'Internal Server Error' });
 });
 

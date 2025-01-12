@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: muhalwan/devops-webapp:latest
     ports:
       - "3000:3000"
     environment:

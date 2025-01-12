@@ -12,12 +12,22 @@ const router = express.Router();
 router.post(
   '/items',
   [
-    body('name').notEmpty().withMessage('Name is required').trim().escape(),
-    body('description').optional().isString().trim().escape(),
+    body('name')
+      .notEmpty()
+      .withMessage('Name is required')
+      .trim()
+      .escape(),
+    body('description')
+      .optional()
+      .isString()
+      .withMessage('Description must be a string')
+      .trim()
+      .escape(),
   ],
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.error('❌ Validation Errors:', errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
     next();
@@ -47,12 +57,23 @@ router.get('/items/:id', itemController.getItemById);
 router.patch(
   '/items/:id',
   [
-    body('name').optional().notEmpty().withMessage('Name cannot be empty').trim().escape(),
-    body('description').optional().isString().trim().escape(),
+    body('name')
+      .optional()
+      .notEmpty()
+      .withMessage('Name cannot be empty')
+      .trim()
+      .escape(),
+    body('description')
+      .optional()
+      .isString()
+      .withMessage('Description must be a string')
+      .trim()
+      .escape(),
   ],
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.error('❌ Validation Errors:', errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
     next();

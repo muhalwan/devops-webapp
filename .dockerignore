@@ -1,9 +1,74 @@
-node_modules
-npm-debug.log
-Dockerfile
-.dockerignore
+# ----------------------------
+# Node.js Dependencies
+# ----------------------------
+node_modules/
+
+# ----------------------------
+# Coverage Reports
+# ----------------------------
+coverage/
+coverage-final.json
+lcov.info
+lcov-report/
+
+# ----------------------------
+# Terraform Files
+# ----------------------------
+devops-infrastructure/
+
+# ----------------------------
+# Git Files
+# ----------------------------
+.git/
+.gitignore
+
+# ----------------------------
+# Environment Variables
+# ----------------------------
 .env
-.git
-.github
-tests
-coverage
+.env.*.local
+
+# ----------------------------
+# Logs
+# ----------------------------
+logs/
+*.log
+
+# ----------------------------
+# Operating System Files
+# ----------------------------
+.DS_Store
+Thumbs.db
+
+# ----------------------------
+# IDE and Editor Configurations
+# ----------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ----------------------------
+# Docker Files
+# ----------------------------
+docker-compose.yml
+Dockerfile
+
+# ----------------------------
+# Sensitive Files
+# ----------------------------
+*.pem
+*.key
+*.crt
+
+# ----------------------------
+# Build and Distribution
+# ----------------------------
+dist/
+build/
+
+# ----------------------------
+# Miscellaneous
+# ----------------------------
+*.swp
+*~

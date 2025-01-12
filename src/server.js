@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const app = require('./app');
 const env = require('./config/env');
 
-const { PORT, DATABASE_URL } = env;
+const PORT = env.PORT || 3000; // Default to port 3000 if PORT is not set
+const DATABASE_URL = env.DATABASE_URL;
 
 // Connect to MongoDB
 mongoose
@@ -13,7 +14,7 @@ mongoose
   .then(() => {
     console.log('✅ Database connected successfully');
     // Start the server only after successful DB connection
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server is running on port ${PORT}`);
     });
   })
