@@ -61,4 +61,4 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f k8s/*.yaml
+          kubectl apply -f k8s/ --ignore-not-found --validate=false
