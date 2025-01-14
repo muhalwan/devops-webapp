@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-alb
+spec:
+  podSelector:
+    matchLabels:
+      app: devops-webapp
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: aws-load-balancer-controller
+      ports:
+        - protocol: TCP
+          port: 8000

@@ -15,6 +15,10 @@ app.use(express.json()); // Parse JSON bodies
 // Routes
 app.use('/api', apiRoutes);
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
+});
+
 // Handle undefined routes
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
