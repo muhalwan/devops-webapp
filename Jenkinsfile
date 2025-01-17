@@ -18,7 +18,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    curl -sSL https://github.com/JetBrains/qodana-action/releases/download/v2024.2/qodana-action-2024.2.tar.gz | tar -xz -C ./qodana
+                    curl -sSL https://github.com/JetBrains/qodana-action/archive/refs/tags/v2024.3.4.tar.gz | tar -xz -C ./qodana
                     ./qodana/qodana scan --pr-mode=false --token $QODANA_TOKEN --endpoint https://qodana.cloud
                     '''
                 }
