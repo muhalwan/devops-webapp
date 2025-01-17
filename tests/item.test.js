@@ -2,6 +2,16 @@ const request = require('supertest');
 const app = require('../src/app');
 const Item = require('../src/models/Item');
 
+// Mock console.error to suppress validation and error logs during tests
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+// Restore console.error after tests
+afterAll(() => {
+  console.error.mockRestore();
+});
+
 describe('Item API Endpoints', () => {
   // Clear the database before each test
   beforeEach(async () => {
@@ -19,9 +29,9 @@ describe('Item API Endpoints', () => {
       };
 
       const res = await request(app)
-        .post('/api/items')
-        .send(newItem)
-        .expect(201); // Assuming you return 201 Created
+          .post('/api/items')
+          .send(newItem)
+          .expect(201); // Assuming you return 201 Created
 
       expect(res.body).toHaveProperty('_id');
       expect(res.body.name).toBe(newItem.name);
@@ -34,17 +44,17 @@ describe('Item API Endpoints', () => {
       };
 
       const res = await request(app)
-        .post('/api/items')
-        .send(newItem)
-        .expect(400);
+          .post('/api/items')
+          .send(newItem)
+          .expect(400);
 
       expect(res.body.errors).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            msg: 'Name is required',
-            path: 'name',
-          }),
-        ])
+          expect.arrayContaining([
+            expect.objectContaining({
+              msg: 'Name is required',
+              path: 'name',
+            }),
+          ])
       );
     });
   });
@@ -62,8 +72,8 @@ describe('Item API Endpoints', () => {
       await Item.insertMany(items);
 
       const res = await request(app)
-        .get('/api/items')
-        .expect(200);
+          .get('/api/items')
+          .expect(200);
 
       expect(res.body.length).toBe(2);
       expect(res.body[0].name).toBe(items[0].name);
@@ -80,8 +90,8 @@ describe('Item API Endpoints', () => {
       await item.save();
 
       const res = await request(app)
-        .get(`/api/items/${item._id}`)
-        .expect(200);
+          .get(`/api/items/${item._id}`)
+          .expect(200);
 
       expect(res.body.name).toBe(item.name);
       expect(res.body.description).toBe(item.description);
@@ -91,8 +101,8 @@ describe('Item API Endpoints', () => {
       const nonExistentId = '507f1f77bcf86cd799439011'; // Valid ObjectId format
 
       const res = await request(app)
-        .get(`/api/items/${nonExistentId}`)
-        .expect(404);
+          .get(`/api/items/${nonExistentId}`)
+          .expect(404);
 
       expect(res.body).toHaveProperty('message', 'Item not found');
     });
@@ -101,8 +111,8 @@ describe('Item API Endpoints', () => {
       const invalidId = 'invalid-id';
 
       const res = await request(app)
-        .get(`/api/items/${invalidId}`)
-        .expect(500);
+          .get(`/api/items/${invalidId}`)
+          .expect(500);
 
       expect(res.body).toHaveProperty('message', 'Internal Server Error');
     });
@@ -119,9 +129,9 @@ describe('Item API Endpoints', () => {
       const updatedData = { name: 'New Name' };
 
       const res = await request(app)
-        .patch(`/api/items/${item._id}`)
-        .send(updatedData)
-        .expect(200);
+          .patch(`/api/items/${item._id}`)
+          .send(updatedData)
+          .expect(200);
 
       expect(res.body.name).toBe(updatedData.name);
       expect(res.body.description).toBe(item.description); // Unchanged
@@ -131,9 +141,9 @@ describe('Item API Endpoints', () => {
       const nonExistentId = '507f1f77bcf86cd799439011';
 
       const res = await request(app)
-        .patch(`/api/items/${nonExistentId}`)
-        .send({ name: 'Updated Name' })
-        .expect(404);
+          .patch(`/api/items/${nonExistentId}`)
+          .send({ name: 'Updated Name' })
+          .expect(404);
 
       expect(res.body).toHaveProperty('message', 'Item not found');
     });
@@ -143,17 +153,17 @@ describe('Item API Endpoints', () => {
       await item.save();
 
       const res = await request(app)
-        .patch(`/api/items/${item._id}`)
-        .send({ name: '' }) // Empty name
-        .expect(400);
+          .patch(`/api/items/${item._id}`)
+          .send({ name: '' }) // Empty name
+          .expect(400);
 
       expect(res.body.errors).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            msg: 'Name cannot be empty',
-            path: 'name',
-          }),
-        ])
+          expect.arrayContaining([
+            expect.objectContaining({
+              msg: 'Name cannot be empty',
+              path: 'name',
+            }),
+          ])
       );
     });
   });
@@ -167,8 +177,8 @@ describe('Item API Endpoints', () => {
       await item.save();
 
       const res = await request(app)
-        .delete(`/api/items/${item._id}`)
-        .expect(200);
+          .delete(`/api/items/${item._id}`)
+          .expect(200);
 
       expect(res.body).toHaveProperty('message', 'Item deleted successfully');
 
@@ -181,8 +191,8 @@ describe('Item API Endpoints', () => {
       const nonExistentId = '507f1f77bcf86cd799439011';
 
       const res = await request(app)
-        .delete(`/api/items/${nonExistentId}`)
-        .expect(404);
+          .delete(`/api/items/${nonExistentId}`)
+          .expect(404);
 
       expect(res.body).toHaveProperty('message', 'Item not found');
     });
