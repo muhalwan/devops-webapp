@@ -1,22 +1,70 @@
 pipeline {
+    agent any
+
     environment {
-        QODANA_TOKEN=credentials('qodana-token')
-        QODANA_ENDPOINT='https://qodana.cloud'
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        AWS_CREDENTIALS = credentials('aws-credentials')
+        KUBECONFIG_CREDENTIALS = credentials('kubeconfig')
     }
-    agent {
-        docker {
-            args '''
-              -v "${WORKSPACE}":/data/project
-              --entrypoint=""
-              '''
-            image 'jetbrains/qodana-jvm:2024.3'
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/your-username/devops-webapp.git' // Replace with actual repository
+            }
+        }
+
+        stage('Qodana Scan') {
+            steps {
+                script {
+                    sh '''
+                    curl -sSL https://github.com/JetBrains/qodana-action/releases/download/v2024.2/qodana-action-2024.2.tar.gz | tar -xz -C ./qodana
+                    ./qodana/qodana scan --pr-mode=false --token $QODANA_TOKEN --endpoint https://qodana.cloud
+                    '''
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'npm install'
+                sh 'npm test'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                script {
+                    dockerImage = docker.build("your-username/devops-webapp:${env.BUILD_ID}")
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh 'kubectl apply -f k8s/'
+                }
+            }
         }
     }
-    stages {
-        stage('Qodana') {
-            steps {
-                sh '''qodana'''
-            }
+
+    post {
+        success {
+            echo 'Deployment successful!'
+        }
+        failure {
+            echo 'Deployment failed.'
         }
     }
 }
