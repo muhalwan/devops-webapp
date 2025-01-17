@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/your-username/devops-webapp.git' // Replace with actual repository
+                git 'https://github.com/muhalwan/devops-webapp.git' // Replace with actual repository
             }
         }
 
@@ -35,7 +35,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                    dockerImage = docker.build("your-username/devops-webapp:${env.BUILD_ID}")
+                    dockerImage = docker.build("muhalwan/devops-webapp:${env.BUILD_ID}")
                 }
             }
         }
