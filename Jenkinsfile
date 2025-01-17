@@ -10,17 +10,29 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/muhalwan/devops-webapp.git' // Replace with actual repository
+                git 'https://github.com/muhalwan/devops-webapp.git'
             }
         }
 
         stage('Qodana Scan') {
             steps {
                 script {
-                    sh '''
-                    curl -sSL https://github.com/JetBrains/qodana-action/archive/refs/tags/v2024.3.4.tar.gz | tar -xz -C ./qodana
-                    ./qodana/qodana scan --pr-mode=false --token $QODANA_TOKEN --endpoint https://qodana.cloud
-                    '''
+                    try {
+                        // Create the qodana directory if it doesn't exist
+                        sh 'mkdir -p ./qodana'
+
+                        // Download and extract the Qodana action
+                        sh '''
+                        curl -sSL https://github.com/JetBrains/qodana-action/archive/refs/tags/v2024.3.4.tar.gz -o qodana-action.tar.gz
+                        tar -xzf qodana-action.tar.gz -C ./qodana --strip-components=1
+                        '''
+
+                        // Run the Qodana scan
+                        sh './qodana/qodana scan --pr-mode=false --token $QODANA_TOKEN --endpoint https://qodana.cloud'
+                    } catch (Exception e) {
+                        echo "Qodana Scan failed: ${e}"
+                        currentBuild.result = 'FAILURE'
+                    }
                 }
             }
         }
