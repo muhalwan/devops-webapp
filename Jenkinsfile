@@ -5,6 +5,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
         AWS_CREDENTIALS = credentials('aws-credentials')
         KUBECONFIG_CREDENTIALS = credentials('kubeconfig')
+        QODANA_TOKEN = credentials('qodana-token')
     }
 
     stages {
@@ -18,17 +19,14 @@ pipeline {
             steps {
                 script {
                     try {
-                        // Create the qodana directory if it doesn't exist
                         sh 'mkdir -p ./qodana'
-
-                        // Download and extract the Qodana action
                         sh '''
                         curl -sSL https://github.com/JetBrains/qodana-action/archive/refs/tags/v2024.3.4.tar.gz -o qodana-action.tar.gz
                         tar -xzf qodana-action.tar.gz -C ./qodana --strip-components=1
+                        chmod +x ./qodana/qodana
+                        ./qodana/qodana --version
+                        ./qodana/qodana scan --pr-mode=false --token $QODANA_TOKEN --endpoint https://qodana.cloud
                         '''
-
-                        // Run the Qodana scan
-                        sh './qodana/qodana scan --pr-mode=false --token $QODANA_TOKEN --endpoint https://qodana.cloud'
                     } catch (Exception e) {
                         echo "Qodana Scan failed: ${e}"
                         currentBuild.result = 'FAILURE'
