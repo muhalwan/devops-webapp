@@ -21,9 +21,9 @@ pipeline {
                     try {
                         sh 'mkdir -p ./qodana'
                         sh '''
-                            # Download Qodana CLI
-                            curl -sSL https://download.jetbrains.com/qodana/qodana-cli-latest.zip -o qodana-cli.zip
-                            unzip qodana-cli.zip -d ./qodana
+                            # Download Qodana CLI for Linux x86_64
+                            curl -sSL https://github.com/JetBrains/qodana-cli/releases/download/v2024.3.4/qodana_linux_x86_64.tar.gz -o qodana.tar.gz
+                            tar -xzf qodana.tar.gz -C ./qodana
                             chmod +x ./qodana/qodana
                             ./qodana/qodana --version
                             ./qodana/qodana scan --pr-mode=false --token $QODANA_TOKEN --endpoint https://qodana.cloud
