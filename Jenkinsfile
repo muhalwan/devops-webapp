@@ -21,9 +21,9 @@ pipeline {
                     try {
                         sh 'mkdir -p ./qodana'
                         sh '''
-                            curl -sSL https://github.com/JetBrains/qodana-action/archive/refs/tags/v2024.3.4.tar.gz -o qodana-action.tar.gz
-                            tar -xzf qodana-action.tar.gz -C ./qodana --strip-components=1
-                            ls -l ./qodana  # Debugging step to list files
+                            # Download Qodana CLI
+                            curl -sSL https://download.jetbrains.com/qodana/qodana-cli-latest.zip -o qodana-cli.zip
+                            unzip qodana-cli.zip -d ./qodana
                             chmod +x ./qodana/qodana
                             ./qodana/qodana --version
                             ./qodana/qodana scan --pr-mode=false --token $QODANA_TOKEN --endpoint https://qodana.cloud
@@ -39,7 +39,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'npm install'
-                sh 'npm audit fix'
+                sh 'npm audit fix --force'
                 sh 'npm test'
             }
         }
