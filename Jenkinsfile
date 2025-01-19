@@ -17,15 +17,8 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                    dockerImage = docker.build("muhalwan/devops-webapp:${env.BUILD_ID}")
-                }
-            }
-        }
-
-        stage('Docker Push') {
-            steps {
-                script {
                     docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+                        def dockerImage = docker.build("muhalwan/devops-webapp:${env.BUILD_ID}")
                         dockerImage.push()
                     }
                 }
