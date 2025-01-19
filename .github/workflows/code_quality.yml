@@ -60,11 +60,11 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t your-docker-username/devops-webapp:latest .
+          docker build -t muhalwan/devops-webapp:latest .
 
       - name: Push Docker Image to Docker Hub
         run: |
-          docker push your-docker-username/devops-webapp:latest
+          docker push muhalwan/devops-webapp:latest
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
