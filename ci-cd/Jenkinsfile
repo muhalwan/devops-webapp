@@ -1,52 +1,60 @@
-          pipeline {
-              agent any
+pipeline {
+    agent any
 
-              environment {
-                  DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-                  AWS_CREDENTIALS = credentials('aws-credentials')
-                  KUBECONFIG_CREDENTIALS = credentials('kubeconfig')
-              }
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials') // Docker Hub credentials
+        AWS_CREDENTIALS = credentials('aws-credentials')            // AWS credentials
+        KUBECONFIG_CREDENTIALS = credentials('kubeconfig')          // Kubernetes kubeconfig
+    }
 
-              stages {
-                  stage('Checkout') {
-                      steps {
-                          git 'https://github.com/muhalwan/devops-webapp.git'
-                      }
-                  }
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/muhalwan/devops-webapp.git' // Clone the repository
+            }
+        }
 
-                  stage('Docker Build') {
-                      steps {
-                          script {
-                              dockerImage = docker.build("muhalwan/devops-webapp:${env.BUILD_ID}")
-                          }
-                      }
-                  }
+        stage('Docker Build') {
+            steps {
+                script {
+                    sh 'docker --version'
 
-                  stage('Docker Push') {
-                      steps {
-                          script {
-                              docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
-                                  dockerImage.push()
-                              }
-                          }
-                      }
-                  }
+                    // Build the Docker image
+                    dockerImage = docker.build("muhalwan/devops-webapp:${env.BUILD_ID}")
+                    echo "Docker image built: ${dockerImage.id}"
+                }
+            }
+        }
 
-                  stage('Deploy to Kubernetes') {
-                      steps {
-                          withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                              sh 'kubectl apply -f k8s/'
-                          }
-                      }
-                  }
-              }
+        stage('Docker Push') {
+            steps {
+                script {
+                    // Push the Docker image to Docker Hub
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+                        dockerImage.push()
+                        echo "Docker image pushed to Docker Hub: muhalwan/devops-webapp:${env.BUILD_ID}"
+                    }
+                }
+            }
+        }
 
-              post {
-                  success {
-                      echo 'Deployment successful!'
-                  }
-                  failure {
-                      echo 'Deployment failed.'
-                  }
-              }
-          }
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    // Apply Kubernetes manifests
+                    sh 'kubectl apply -f k8s/'
+                    echo "Deployed to Kubernetes successfully!"
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline succeeded! Deployment successful!'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
+        }
+    }
+}
