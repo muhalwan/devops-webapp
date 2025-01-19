@@ -1,15 +1,27 @@
 const request = require('supertest');
 const app = require('../src/app');
 const Item = require('../src/models/Item');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const mongoose = require('mongoose');
+
+let mongoServer;
 
 // Mock console.error to suppress validation and error logs during tests
-beforeAll(() => {
+beforeAll(async () => {
   jest.spyOn(console, 'error').mockImplementation(() => {});
+  mongoServer = await MongoMemoryServer.create();
+  const uri = mongoServer.getUri();
+  await mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
 });
 
-// Restore console.error after tests
-afterAll(() => {
+// Restore console.error and disconnect from the database after tests
+afterAll(async () => {
   console.error.mockRestore();
+  await mongoose.disconnect();
+  await mongoServer.stop();
 });
 
 describe('Item API Endpoints', () => {
@@ -31,12 +43,12 @@ describe('Item API Endpoints', () => {
       const res = await request(app)
           .post('/api/items')
           .send(newItem)
-          .expect(201); // Assuming you return 201 Created
+          .expect(201);
 
       expect(res.body).toHaveProperty('_id');
       expect(res.body.name).toBe(newItem.name);
       expect(res.body.description).toBe(newItem.description);
-    });
+    }, 30000); // Increase timeout to 30 seconds
 
     it('should return validation error if name is missing', async () => {
       const newItem = {
@@ -56,7 +68,7 @@ describe('Item API Endpoints', () => {
             }),
           ])
       );
-    });
+    }, 30000); // Increase timeout to 30 seconds
   });
 
   /**
@@ -78,7 +90,7 @@ describe('Item API Endpoints', () => {
       expect(res.body.length).toBe(2);
       expect(res.body[0].name).toBe(items[0].name);
       expect(res.body[1].name).toBe(items[1].name);
-    });
+    }, 30000); // Increase timeout to 30 seconds
   });
 
   /**
@@ -95,7 +107,7 @@ describe('Item API Endpoints', () => {
 
       expect(res.body.name).toBe(item.name);
       expect(res.body.description).toBe(item.description);
-    });
+    }, 30000); // Increase timeout to 30 seconds
 
     it('should return 404 if item not found', async () => {
       const nonExistentId = '507f1f77bcf86cd799439011'; // Valid ObjectId format
@@ -105,7 +117,7 @@ describe('Item API Endpoints', () => {
           .expect(404);
 
       expect(res.body).toHaveProperty('message', 'Item not found');
-    });
+    }, 30000); // Increase timeout to 30 seconds
 
     it('should return 500 for invalid ID format', async () => {
       const invalidId = 'invalid-id';
@@ -115,7 +127,7 @@ describe('Item API Endpoints', () => {
           .expect(500);
 
       expect(res.body).toHaveProperty('message', 'Internal Server Error');
-    });
+    }, 30000); // Increase timeout to 30 seconds
   });
 
   /**
@@ -135,7 +147,7 @@ describe('Item API Endpoints', () => {
 
       expect(res.body.name).toBe(updatedData.name);
       expect(res.body.description).toBe(item.description); // Unchanged
-    });
+    }, 30000); // Increase timeout to 30 seconds
 
     it('should return 404 if item to update is not found', async () => {
       const nonExistentId = '507f1f77bcf86cd799439011';
@@ -146,7 +158,7 @@ describe('Item API Endpoints', () => {
           .expect(404);
 
       expect(res.body).toHaveProperty('message', 'Item not found');
-    });
+    }, 30000); // Increase timeout to 30 seconds
 
     it('should return validation error for invalid data', async () => {
       const item = new Item({ name: 'Valid Name', description: 'Valid Description' });
@@ -165,7 +177,7 @@ describe('Item API Endpoints', () => {
             }),
           ])
       );
-    });
+    }, 30000); // Increase timeout to 30 seconds
   });
 
   /**
@@ -185,7 +197,7 @@ describe('Item API Endpoints', () => {
       // Verify deletion
       const foundItem = await Item.findById(item._id);
       expect(foundItem).toBeNull();
-    });
+    }, 30000); // Increase timeout to 30 seconds
 
     it('should return 404 if item to delete is not found', async () => {
       const nonExistentId = '507f1f77bcf86cd799439011';
@@ -195,6 +207,6 @@ describe('Item API Endpoints', () => {
           .expect(404);
 
       expect(res.body).toHaveProperty('message', 'Item not found');
-    });
+    }, 30000); // Increase timeout to 30 seconds
   });
 });

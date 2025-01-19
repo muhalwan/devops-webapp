@@ -21,11 +21,12 @@ pipeline {
                     try {
                         sh 'mkdir -p ./qodana'
                         sh '''
-                        curl -sSL https://github.com/JetBrains/qodana-action/archive/refs/tags/v2024.3.4.tar.gz -o qodana-action.tar.gz
-                        tar -xzf qodana-action.tar.gz -C ./qodana --strip-components=1
-                        chmod +x ./qodana/qodana
-                        ./qodana/qodana --version
-                        ./qodana/qodana scan --pr-mode=false --token $QODANA_TOKEN --endpoint https://qodana.cloud
+                            curl -sSL https://github.com/JetBrains/qodana-action/archive/refs/tags/v2024.3.4.tar.gz -o qodana-action.tar.gz
+                            tar -xzf qodana-action.tar.gz -C ./qodana --strip-components=1
+                            ls -l ./qodana  # Debugging step to list files
+                            chmod +x ./qodana/qodana
+                            ./qodana/qodana --version
+                            ./qodana/qodana scan --pr-mode=false --token $QODANA_TOKEN --endpoint https://qodana.cloud
                         '''
                     } catch (Exception e) {
                         echo "Qodana Scan failed: ${e}"
@@ -38,6 +39,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'npm install'
+                sh 'npm audit fix'
                 sh 'npm test'
             }
         }
